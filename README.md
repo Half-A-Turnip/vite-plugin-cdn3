@@ -10,11 +10,11 @@
 
 ```bash
 
-$ yarn add vite-plugin-cdn2 -D
+$ yarn add vite-plugin-cdn3 -D
 
 # or
 
-$ npm install vite-plugin-cdn2 -D
+$ npm install vite-plugin-cdn3 -D
 
 ```
 
@@ -25,7 +25,7 @@ $ npm install vite-plugin-cdn2 -D
 
 import { defineConfig } from "vite";
 
-import { cdn } from "vite-plugin-cdn2";
+import { cdn } from "vite-plugin-cdn3";
 
 export default defineConfig({
   plugins: [

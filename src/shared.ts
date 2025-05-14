@@ -6,12 +6,47 @@ import MagicString from 'magic-string'
 import AggregateError from '@nolyfill/es-aggregate-error'
 import { ModuleInfo } from './interface'
 
-export function lookup(entry: string, target: string): string {
+export function lookup(entry: string, target: string, ignorePackagePatterns: string[] = ['node_modules/*/dist', 'node_modules/*/build']): string {
+  // 防止无限递归，当到达文件系统根目录时停止
+  if (entry === '/' || entry === '.' || entry === '') {
+    throw new Error(`Could not find ${target} in the project`)
+  }
+  
   const dir = path.dirname(entry)
   const targetFile = path.join(dir, target)
-  if (fs.existsSync(targetFile)) return targetFile
-  return lookup(dir, target)
+  
+  // 检查当前路径是否应该被忽略
+  const shouldIgnore = ignorePackagePatterns.some(pattern => {
+    if (pattern.includes('*')) {
+      // 简单的通配符匹配
+      const [prefix, suffix] = pattern.split('*')
+      return dir.includes(prefix) && dir.includes(suffix)
+    }
+    return dir.includes(pattern)
+  })
+  
+  if (fs.existsSync(targetFile) && !shouldIgnore) {
+    // 验证package.json是否为主package.json(可选)
+    if (target === 'package.json') {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(targetFile, 'utf8'))
+        // 主package.json通常有name字段
+        if (pkg.name) {
+          return targetFile
+        }
+        // 否则继续查找
+      } catch (e) {
+        // 读取失败则继续查找
+      }
+    } else {
+      return targetFile
+    }
+  }
+  
+  // 继续在父目录中查找
+  return lookup(dir, target, ignorePackagePatterns)
 }
+
 
 export function len<T extends ArrayLike<unknown>>(source: T) {
   return source.length

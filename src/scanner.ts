@@ -33,7 +33,7 @@ interface ScannerModule {
 }
 
 interface ThreadMessage {
-  bindings: Map<string, ModuleInfo>, 
+  bindings: Map<string, ModuleInfo>,
   failedModules: Map<string, string>
   id: number
   error: Error | AggregateError
@@ -102,17 +102,17 @@ async function tryResolveModule(
   failedModules: Map<string, string>,
   defaultWd: string
 ) {
-  const { name: moduleName, relativeModule, aliases, ...rest } = module
+  const { name: moduleName, ignorePackagePatterns, relativeModule, aliases, ...rest } = module
   try {
     const modulePath = _require.resolve(moduleName, { paths: [defaultWd] })
-    const packageJsonPath = lookup(modulePath, 'package.json')
+    const packageJsonPath = lookup(modulePath, 'package.json', ignorePackagePatterns)
     const str = await fsp.readFile(packageJsonPath, 'utf8')
     const packageJSON: IIFEModuleInfo = JSON.parse(str)
     const { version, name, unpkg, jsdelivr } = packageJSON
     const meta: ModuleInfo = Object.create(null)
     // Most of package has jsdelivr or unpkg field
     // but a small part is not. so we should accept user define.
-    const iifeRelativePath = relativeModule || jsdelivr || unpkg 
+    const iifeRelativePath = relativeModule || jsdelivr || unpkg
     if (!iifeRelativePath) throw new Error('try resolve file failed.')
     if (rest.global) {
       Object.assign(meta, { name, version, relativeModule: iifeRelativePath, aliases: serializationExportsFields(name, aliases), ...rest })

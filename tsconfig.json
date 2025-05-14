@@ -7,6 +7,7 @@
     "skipLibCheck": true,
     "target": "ESNext",
     "lib": ["esnext", "dom"],
+    "types": ["node"],
     "resolveJsonModule": true,
     "module": "ESNext",
     "moduleResolution": "node",

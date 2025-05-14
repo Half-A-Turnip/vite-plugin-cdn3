@@ -36,6 +36,7 @@ export type LinkSpare = LinkAttrobites & {
 export interface Module {
   name: string
   global?: string
+  ignorePackagePatterns?: Array<string>
 }
 
 export interface TrackModule extends Module {
@@ -66,8 +67,8 @@ export type ExternalModule = Required<Module> & {
 type Pretty<T> = {
   [key in keyof T]:
   T[key] extends (...args: any[]) => any
-    ? (...args: Parameters<T[key]>) => ReturnType<T[key]>
-    : T[key] & NonNullable<unknown>
+  ? (...args: Parameters<T[key]>) => ReturnType<T[key]>
+  : T[key] & NonNullable<unknown>
 } & NonNullable<unknown>
 
 export type CDNPluginOptions = Pretty<{
